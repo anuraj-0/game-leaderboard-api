@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Contestant {
+  id           Int           @id @default(autoincrement())
+  name         String
+  createdAt    DateTime      @default(now())
+  participants Participant[]
+}
+
+model Game {
+  id             Int             @id @default(autoincrement())
+  name           String
+  status         String          @default("waiting")
+  createdAt      DateTime        @default(now())
+  gamePopularity GamePopularity?
+  participants   Participant[]
+  upvotes        Int             @default(0)
+}
+
+model Participant {
+  id           Int      @id @default(autoincrement())
+  gameId       Int
+  contestantId Int
+  score        Int      @default(0)
+  startedAt    DateTime @default(now())  // Track when the contestant starts the game
+  endedAt      DateTime?                 // Track when the contestant exits
+  
+  game         Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  contestant   Contestant @relation(fields: [contestantId], references: [id], onDelete: Cascade)
+  
+  @@unique([gameId, contestantId]) // Ensures a contestant can join a game only once
+}
+
+model GamePopularity {
+  id              Int      @id @default(autoincrement())
+  gameId          Int      @unique
+  popularityScore Float
+  updatedAt       DateTime @default(now())
+  game            Game     @relation(fields: [gameId], references: [id])
+}

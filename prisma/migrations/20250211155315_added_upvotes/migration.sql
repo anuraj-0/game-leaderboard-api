@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Game" ADD COLUMN     "upvotes" INTEGER NOT NULL DEFAULT 0;
